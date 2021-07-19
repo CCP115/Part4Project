@@ -13,30 +13,36 @@ entity processing_element is
 		en				: in std_logic;
 		out_res_in		: in std_logic;
 		weight_in		: in std_logic_vector(7 downto 0);
-		input_map		: in std_logic_vector(7 downto 0);
+		input_img_in	: in std_logic_vector(7 downto 0);
 		
 		output_map		: out std_logic_vector(7 downto 0) := x"00";
 		weight_out		: out std_logic_vector(7 downto 0) := x"00";
+		input_img_out	: out std_logic_vector(7 downto 0) := x"00";
 		out_res_out		: out std_logic := '0'
 	);
 end entity processing_element;
 
 architecture behaviour of processing_element is
 	signal internal_sum		: integer := 0;
+	signal weight_delay		: std_logic_vector(7 downto 0) := x"00";
 begin
 
 process (clk)
 begin
 if rising_edge(clk) then
 	if en = '1' then
-		-- Pass weight along to next PE
-		weight_out <= weight_in;
+		-- Pass weight along to next PE, every second clock cycle
+		weight_out <= weight_delay;
+		weight_delay <= weight_in;
 		
 		-- Pass the output/reset signal to next PE
 		out_res_out <= out_res_in;
 		
+		-- Pass the input img data along to next PE
+		input_img_out <= input_img_in;
+		
 		-- Multiply & Accumulate
-		internal_sum <= internal_sum + (to_integer(unsigned(weight_in)) * to_integer(unsigned(input_map)));
+		internal_sum <= internal_sum + (to_integer(unsigned(weight_in)) * to_integer(unsigned(input_img_in)));
 		
 		-- Output and reset internal sum if output/reset signal present
 		if out_res_in = '1' then
