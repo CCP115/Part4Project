@@ -1,7 +1,7 @@
 -- Cecil Symes
 
 package ezconstants is
-	constant size_constant	: integer := 6;
+	constant size_constant	: integer := 16;
 end package ezconstants;
 
 library IEEE;
